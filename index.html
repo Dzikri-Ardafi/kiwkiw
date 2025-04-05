@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Teman WA</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        /* box-sizing: border-box; */
+        font-family: "Quicksand", sans-serif;
+      }
+      body {
+        background: #ffe0ec;
+        overflow: hidden;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        position: relative;
+      }
+      .bubbles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        overflow: hidden;
+        background-color: #ff80b5;
+      }
+      .bubble {
+        position: absolute;
+        bottom: -100px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: float 15s infinite ease-in;
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-120vh) scale(1.5);
+          opacity: 0;
+        }
+      }
+      .card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 400px;
+        width: 70%;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+      }
+      h1 {
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+      .btn {
+        background: #ff80b5;
+        color: #fff;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 10px;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+      }
+      .btn:hover {
+        background: #ff5d9e;
+      }
+      input {
+        padding: 10px;
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+      }
+      .hidden {
+        display: none;
+      }
+      .gif-container {
+        margin-bottom: 20px;
+      }
+      .gif-container img {
+        width: 100px;
+        height: auto;
+      }
+      .typing {
+        display: inline-block;
+        /* border-right: 2px solid #333; */
+        white-space: normal;
+        overflow: hidden;
+        /* animation: typing 3s steps(40, end); */
+        word-wrap: break-word;
+      }
+      @keyframes typing {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+      /* @keyframes blink-caret {
+        from,
+        to {
+          border-color: transparent;
+        }
+        50% {
+          border-color: #333;
+        }
+      } */
+    </style>
+  </head>
+  <body>
+    <div class="bubbles" id="bubbleContainer"></div>
+
+    <div class="card">
+      <div class="gif-container">
+        <img
+          src="https://cdn.pixabay.com/animation/2023/07/03/09/57/09-57-33-900_512.gif"
+          alt="boneka lucu"
+        />
+      </div>
+      <h1 id="question" class="typing">
+        <!-- Sistem sedang memverifikasi kelayakan kamu jadi temen WA aku... 🤖 -->
+      </h1>
+      <div id="options">
+        <button class="btn" onclick="nextStep()">Mulai Verifikasi</button>
+      </div>
+      <div id="result" class="hidden">
+        <h1>Kamu lulus verifikasi! 🎉</h1>
+        <p>Masukkan nomor WhatsApp kamu biar kita bisa ngobrol 😳</p>
+        <input type="text" placeholder="08xxxxx" id="waInput" />
+        <button class="btn" onclick="submitWA()">Kirim 💌</button>
+      </div>
+    </div>
+
+    <script>
+      const question = document.getElementById("question");
+      const options = document.getElementById("options");
+      const result = document.getElementById("result");
+
+      const quiz = [
+        {
+          q: "Kamu tipe orang yang bales chat...",
+          a: ["2 detik 🐇", "2 minggu 🐢", "Pas planet sejajar 🪐"],
+        },
+        {
+          q: "Seberapa yakin kamu gak bakal ghosting aku?",
+          a: ["100% 😇", "70% 😅", "Aku malu jawabnya 🙈"],
+        },
+      ];
+
+      let index = 0;
+
+      function nextStep() {
+        if (index < quiz.length) {
+          question.innerText = quiz[index].q;
+          options.innerHTML = "";
+          quiz[index].a.forEach((ans) => {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.innerText = ans;
+            btn.onclick = () => nextStep();
+            options.appendChild(btn);
+          });
+          index++;
+        } else {
+          question.classList.add("hidden");
+          options.classList.add("hidden");
+          result.classList.remove("hidden");
+        }
+      }
+
+      function submitWA() {
+        const number = document.getElementById("waInput").value;
+        if (number) {
+          alert(`Yay! Aku bakal chat kamu di WhatsApp: ${number} ✨`);
+          // Bisa tambahin redirect ke wa.me di sini kalau mau
+        } else {
+          alert("Nomornya belum diisi 😭");
+        }
+      }
+
+      // Generate Bubbles
+      const bubbleContainer = document.getElementById("bubbleContainer");
+      for (let i = 0; i < 20; i++) {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.style.left = Math.random() * 100 + "vw";
+        bubble.style.width = bubble.style.height =
+          Math.random() * 30 + 20 + "px";
+        bubble.style.animationDuration = Math.random() * 10 + 10 + "s";
+        bubbleContainer.appendChild(bubble);
+      }
+
+      // generate on typing
+      const texts =
+        "Sistem sedang memverifikasi kelayakan kamu jadi temen WA aku... 🤖";
+      const textArr = texts.split("");
+      async function runTask() {
+        for (const text of textArr) {
+          const data = await doSomethingAsync(text);
+          question.append(data);
+        }
+      }
+
+      async function doSomethingAsync(num) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(num);
+          }, 50);
+        });
+      }
+      runTask();
+      //   const bubbleContainer = document.getElementById('bubbleContainer');
+      // for (let i = 0; i < 40; i++) {
+      //   const bubble = document.createElement('div');
+      //   bubble.className = 'bubble';
+      //   bubble.style.left = Math.random() * 100 + 'vw';
+      //   bubble.style.width = bubble.style.height = (Math.random() * 30 + 20) + 'px';
+      //   bubble.style.animationDuration = (Math.random() * 4 + 3) + 's';
+      //   bubbleContainer.appendChild(bubble);
+      // }
+    </script>
+  </body>
+</html>
