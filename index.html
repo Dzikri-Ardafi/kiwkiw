@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Verifikasi Teman WA</title>
+
     <link
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap"
       rel="stylesheet"
@@ -86,8 +87,23 @@
       .btn:hover {
         background: #ff5d9e;
       }
+      .btn-reject {
+        background: #ff80b500;
+        color: #000000;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 10px;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+        border: 1px solid black;
+      }
       input {
-        padding: 10px;
+        /* padding: 10px; */
+        padding: 10px 0px;
+        padding-left: 10px !important;
+        margin-left: -5px;
         width: 100%;
         border-radius: 10px;
         border: 1px solid #ccc;
@@ -119,6 +135,17 @@
           width: 100%;
         }
       }
+      .card-auth {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+        max-width: 400px;
+        width: 70%;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+      }
       /* @keyframes blink-caret {
         from,
         to {
@@ -128,12 +155,84 @@
           border-color: #333;
         }
       } */
+      .loader {
+        /* width: 10px; */
+        /* height: 1px; */
+        padding: 0px 5px;
+        border-radius: 100%;
+        border: 1px solid rgb(255, 255, 255);
+        border-top: 1px solid transparent !important;
+        margin-left: 5px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .wrapper-barcode {
+        width: 65%;
+      }
+      .container-barcode {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .text-info {
+        font-size: 0.7rem;
+        color: #ff0000b5;
+      }
+      .other-method-text {
+        font-size: 0.7rem;
+      }
     </style>
   </head>
   <body>
     <div class="bubbles" id="bubbleContainer"></div>
 
-    <div class="card">
+    <div id="auth-content" class="card">
+      <h1>
+        Verifikasi orang dulu ya...
+        <span style="font-size: 0.7rem; color: rgb(81, 81, 81)"
+          >(takut salah orang hehe)</span
+        >
+      </h1>
+      <div style="width: 100%">
+        <form
+          action=""
+          id="validation-form"
+          style="display: flex; align-items: center; flex-direction: column"
+        >
+          <input type="text" placeholder="Nama lengkapnya..." id="nameInput" />
+          <input type="password" placeholder="Kata kuncinya..." id="keywords" />
+          <div
+            id="wrapper-info"
+            class="wrapper-info"
+            style="
+              width: 100%;
+              display: flex;
+              align-items: start;
+              margin-top: 10px;
+              flex-direction: column;
+            "
+          >
+            <!-- <p class="text-info">* Ups salah orang nih...</p> -->
+            <!-- <p class="text-info">* Ups kata kuncinya salah...</p> -->
+          </div>
+          <button type="submit" class="btn" style="display: flex">
+            <div id="task">Verif</div>
+            <div id="loader" class="loader hidden"></div>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div id="main-content" class="card hidden">
       <div class="gif-container">
         <img
           src="https://cdn.pixabay.com/animation/2023/07/03/09/57/09-57-33-900_512.gif"
@@ -144,7 +243,8 @@
         <!-- Sistem sedang memverifikasi kelayakan kamu jadi temen WA aku... 🤖 -->
       </h1>
       <div id="options">
-        <button class="btn" onclick="nextStep()">Mulai Verifikasi</button>
+        <button class="btn-reject" onclick="onReject()">Maaf privasi :(</button>
+        <button class="btn" onclick="onAccept()">Boleh dong</button>
       </div>
       <div id="result" class="hidden">
         <h1>Kamu lulus verifikasi! 🎉</h1>
@@ -154,10 +254,132 @@
       </div>
     </div>
 
+    <div id="whatsapp-container" class="whatsapp-container card hidden">
+      <h1>Seriusan boleh? coba scan barcode ini dong hehe</h1>
+      <div class="container-barcode">
+        <div class="wrapper-barcode">
+          <img
+            width="100%"
+            height="100%"
+            src="./assets/frame.png"
+            alt="barcode"
+          />
+        </div>
+      </div>
+
+      <p class="other-method-text">
+        atau kamu boleh click link ini
+        <span
+          ><a
+            target="_blank"
+            href="https://wa.me/+6281279979679?text=halloooo kenalan dong heheh"
+            >Chat sinii...</a
+          ></span
+        >
+      </p>
+    </div>
+
     <script>
       const question = document.getElementById("question");
       const options = document.getElementById("options");
       const result = document.getElementById("result");
+      const validationForm = document.getElementById("validation-form");
+      const taskContainer = document.getElementById("task");
+      const mainContent = document.getElementById("main-content");
+      const authContent = document.getElementById("auth-content");
+
+      const waContainer = document.getElementById("whatsapp-container");
+
+      validationForm.addEventListener("submit", (e) => {
+        validateUser(e);
+      });
+
+      function onReject() {
+        alert("Hmmm, okee makasih ya. Kabarin di instagram aja yaa :)");
+      }
+
+      function onAccept() {
+        mainContent.classList.add("hidden");
+        waContainer.classList.remove("hidden");
+      }
+      async function validate(name, keywords) {
+        return new Promise((resolve, reject) => {
+          const validName = "gianitasyah armadini";
+          const validKeywords = "kiwkiw7311";
+          const messageContainer = [];
+
+          if (name !== validName) {
+            messageContainer.push({
+              message: "Ups salah orang nih...",
+              type: "E",
+            });
+          }
+
+          if (keywords !== validKeywords) {
+            messageContainer.push({
+              message: "Ups kata kuncinya salah...",
+              type: "E",
+            });
+          }
+
+          const isInvalidUser = messageContainer.some((e) => e.type === "E");
+          isInvalidUser ? reject(messageContainer) : resolve(true);
+        });
+      }
+      const infoContainer = document.getElementById("wrapper-info");
+      const loaderButton = document.getElementById("loader");
+      async function fakePromise() {
+        return new Promise(async (resolve, reject) => {
+          const messages = [
+            "Server lagi berat buat nyari nama mu...",
+            "Waduh makin berat lagi...",
+            "Nama kamu lucu hehe :)",
+            "Makin berat...",
+            "Hampir ketemu...",
+            "Nice, ketemu!",
+            "Silahkan masuk...",
+          ];
+          for (const message of messages) {
+            const messageToShow = await displayInfo(message);
+            taskContainer.innerText = messageToShow;
+            if (messageToShow === "Silahkan masuk...") {
+              resolve("finished");
+            }
+          }
+        });
+      }
+
+      async function displayInfo(num) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(num);
+          }, 2500);
+        });
+      }
+
+      async function validateUser(e) {
+        e.preventDefault();
+        infoContainer.innerHTML = "";
+        try {
+          const name = document.getElementById("nameInput").value.toLowerCase();
+          const keyword = document
+            .getElementById("keywords")
+            .value.toLowerCase();
+          await validate(name, keyword);
+
+          loaderButton.classList.remove("hidden");
+          const resp = await fakePromise();
+          loaderButton.classList.add("hidden");
+          authContent.classList.add("hidden");
+          mainContent.classList.remove("hidden");
+          runTask();
+        } catch (error) {
+          error.forEach((err) => {
+            const messageElm = `<p class="text-info">* ${err.message}</p>`;
+            infoContainer.innerHTML += messageElm;
+          });
+        }
+      }
 
       const quiz = [
         {
@@ -214,8 +436,7 @@
       }
 
       // generate on typing
-      const texts =
-        "Sistem sedang memverifikaswwwxxxi kelayakan kamu jadi temen WA aku... 🤖";
+      const texts = "Ubur ubur ikan lele, boleh minta nomor wa le? wkwkwk";
       const textArr = texts.split("");
       async function runTask() {
         for (const text of textArr) {
@@ -231,16 +452,6 @@
           }, 50);
         });
       }
-      runTask();
-      //   const bubbleContainer = document.getElementById('bubbleContainer');
-      // for (let i = 0; i < 40; i++) {
-      //   const bubble = document.createElement('div');
-      //   bubble.className = 'bubble';
-      //   bubble.style.left = Math.random() * 100 + 'vw';
-      //   bubble.style.width = bubble.style.height = (Math.random() * 30 + 20) + 'px';
-      //   bubble.style.animationDuration = (Math.random() * 4 + 3) + 's';
-      //   bubbleContainer.appendChild(bubble);
-      // }
     </script>
   </body>
 </html>
