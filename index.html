@@ -331,18 +331,20 @@
       async function fakePromise() {
         return new Promise(async (resolve, reject) => {
           const messages = [
-            "Server lagi berat buat nyari nama mu...",
+            "Server lagi berat buat nyari nama kamu...",
             "Waduh makin berat lagi...",
-            "Nama kamu lucu hehe :)",
+            "Nama kamu lucu ternyata hehe :)",
             "Makin berat...",
             "Hampir ketemu...",
             "Nice, ketemu!",
             "Silahkan masuk...",
+            "Jangan kaget yaa...",
+            "Finished",
           ];
           for (const message of messages) {
             const messageToShow = await displayInfo(message);
             taskContainer.innerText = messageToShow;
-            if (messageToShow === "Silahkan masuk...") {
+            if (messageToShow === "Finished") {
               resolve("finished");
             }
           }
